@@ -1,19 +1,16 @@
-variable "project" {
-  description = "Google Cloud Project ID"
-}
-variable "region" {
-  description = "Google Cloud Region"
-  default     = "us-central1"
-}
-
 variable "runtime" {
   description = "The runtime the google cloud function should run in. A list of all available runtimes can be found here: https://cloud.google.com/functions/docs/concepts/exec#runtimes"
   type        = string
-  default     = "nodejs12.x"
+  default     = "nodejs12"
 }
 
-variable "filename" {
-  description = "The path to the .zip file that contains the cloud function source code."
+variable "source_filename" {
+  description = "name of the file that contains the source code."
+  type        = string
+}
+
+variable "source_dir" {
+  description = "The path to the directory that contains the source code file. This directory should only contain the source code and will be compressed and uploaded to the bucket."
   type        = string
 }
 
@@ -28,8 +25,12 @@ variable "environment_variables" {
 }
 
 variable "function_entry_point" {
-  description = "The function entrypoint in the code. This is the name of the method in the code which receives the event and context parameter when this Lambda function is triggered. e.g: function_1.handler"
+  description = "The function entrypoint in the code. It might be the name of a method in your source code."
   type        = string
+}
+
+variable "function_invoker_user" {
+  description = " Identities that will be granted the privilege to invoke the function. Public: 'allUsers'."
 }
 
 variable "timeout" {
@@ -43,11 +44,20 @@ variable "available_memory_mb" {
 }
 
 variable "labels" {
-  description = "{ my-label = \"my-label-value\" }"
+  description = "These lables will be attached to your hosted function in the cloud. { my-label = \"my-label-value\" }"
   default     = {}
 }
 
 variable "bucket_location" {
   description = "Available Google Bucket locations: https://cloud.google.com/storage/docs/locations"
   default     = "US"
+}
+
+variable "project" {
+  description = "Google Cloud Project ID"
+  type        = string
+}
+variable "region" {
+  description = "Google Cloud Region"
+  default     = "us-central1"
 }

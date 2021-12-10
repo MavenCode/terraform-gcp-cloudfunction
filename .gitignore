@@ -1,3 +1,5 @@
+# node modules directories
+**/node_modules/*
 # Local .terraform directories
 **/.terraform/*
 
