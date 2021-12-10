@@ -30,7 +30,7 @@ variable "function_entry_point" {
 }
 
 variable "function_invoker_user" {
-  description = " Identities that will be granted the privilege to invoke the function. Public: 'allUsers'."
+  description = "Identities that will be granted the privilege to invoke the function. Public: 'allUsers'."
 }
 
 variable "timeout" {
