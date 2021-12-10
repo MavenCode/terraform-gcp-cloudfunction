@@ -1,6 +1,5 @@
 locals {
   timestamp = formatdate("YYMMDDhhmmss", timestamp())
-  root_dir  = abspath("../")
 }
 
 # Create bucket that will host the source code
@@ -12,7 +11,7 @@ resource "google_storage_bucket" "function_bucket" {
 # Compress source code
 data "archive_file" "source" {
   type        = "zip"
-  source_dir  = var.filename
+  source_dir  = var.source_dir
   output_path = "/tmp/function-${local.timestamp}.zip"
 }
 
@@ -29,14 +28,22 @@ resource "google_service_account" "service_account" {
   display_name = "Cloud Function Tutorial Invoker Service Account"
 }
 
-# Create IAM entry so all users can invoke the function
-resource "google_cloudfunctions_function_iam_member" "invoker" {
-  project        = google_cloudfunctions_function.function.project
-  region         = google_cloudfunctions_function.function.region
-  cloud_function = google_cloudfunctions_function.function.name
+# Enable Cloud Functions API
+resource "google_project_service" "cf" {
+  project = var.project
+  service = "cloudfunctions.googleapis.com"
 
-  role   = "roles/cloudfunctions.invoker"
-  member = "allUsers"
+  disable_dependent_services = true
+  disable_on_destroy         = false
+}
+
+# Enable Cloud Build API
+resource "google_project_service" "cb" {
+  project = var.project
+  service = "cloudbuild.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = false
 }
 
 # Create Cloud Function
@@ -49,4 +56,15 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_object = google_storage_bucket_object.zip.name
   trigger_http          = true
   entry_point           = var.function_entry_point
+  environment_variables = var.environment_variables
+}
+
+# Create IAM entry so all users can invoke the function
+resource "google_cloudfunctions_function_iam_member" "invoker" {
+  project        = google_cloudfunctions_function.function.project
+  region         = google_cloudfunctions_function.function.region
+  cloud_function = google_cloudfunctions_function.function.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = var.function_invoker_user
 }
